@@ -1,4 +1,4 @@
-import requests # Para enviar solicituders a FastAPI desde el mismo archivo
+import requests # Para enviar solicitudes a FastAPI desde el mismo archivo
 
 def agregar_tarea():
     nueva_tarea = {
