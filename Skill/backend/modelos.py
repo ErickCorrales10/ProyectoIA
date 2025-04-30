@@ -43,3 +43,14 @@ preguntas_padres = Table(
     Column("pregunta", String),
     Column("nivel", Integer)
 )
+
+# Tabla para los ejercicios específicos
+ejercicios_detalle = Table(
+    "ejercicios_detalle",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("ejercicio_id", Integer, ForeignKey("ejercicios.id")),
+    Column("instruccion", String),
+    Column("opciones", String),
+    Column("respuesta_correcta", String)
+)
