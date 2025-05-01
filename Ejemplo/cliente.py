@@ -1,4 +1,4 @@
-import requests # Para enviar solicitudes a FastAPI desde el mismo archivo
+""" import requests # Para enviar solicitudes a FastAPI desde el mismo archivo
 
 def agregar_tarea():
     # Agregar tarea por teclado
@@ -24,4 +24,4 @@ def agregar_tarea():
         print(respuesta.status_code, respuesta.text)
 
 if __name__ == "__main__":
-    agregar_tarea()
+    agregar_tarea() """
