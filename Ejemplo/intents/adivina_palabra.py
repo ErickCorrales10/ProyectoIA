@@ -1,5 +1,6 @@
 from fastapi.responses import JSONResponse
 import random
+import os
 
 
 # Lista de pares de palabras a escuchar
@@ -14,24 +15,77 @@ pares_palabras = [
     (8, 'sol', 'rol')
 ]
 
+# Seleccionamos el par de palabras a escuchar
 palabras = random.choice(pares_palabras)
-""" print(type(pares_palabras))
-print(pares_palabras[0])
-print(palabras)
-palabra_1, palabra_2 = palabras
-print(palabra_1) """
+indice, palabra_1, palabra_2 = palabras
+palabras_escogidas = (palabra_1, palabra_2)
+palabra_escogida = random.choice(palabras_escogidas)
+print(palabras_escogidas)
 
-# Seleccionamos las palabras a escuchar
-par_correcto = random.choice(pares_palabras)
+# Seleccionar la oración dependiendo de las palabras
+def seleccionar_oracion():
+    match indice:
+        case 1:
+            return "El gato saltó por la ventana para tomar el sol." if palabra_escogida == 'gato' else "En el lago el pato paseaba por el agua."
+            
+        case 2:
+            if palabra_escogida == 'manzana':
+                return "La manzana cayó del árbol y rodó por el césped."
+            else:
+                return "El mono peló una banana y se la comió felizmente."
+            
+        case 3:
+            return "El coche rojo aceleró por la autopista sin detenerse." if palabra_escogida == "coche" else "Hubo un pequeño choque en la esquina, pero nadie salió herido."
+            
+        case 4:
+            if palabra_escogida == 'silla':
+                return "Juan se sentó en la silla y comenzó a leer su libro."
+            else:
+                return "Pasaron el verano en una villa junto al mar."
+        
+        case 5:
+            if palabra_escogida == 'perro':
+                return "El perro ladró fuerte cuando vio al cartero acercarse."
+            else:
+                return "Subimos al cerro para ver el atardecer desde la cima."
+        
+        case 6:
+            if palabra_escogida == 'fruta':
+                return "Cada mañana desayuno con una fruta diferente."
+            else:
+                return "Tomamos la ruta más larga para disfrutar del paisaje."
+        
+        case 7:
+            if palabra_escogida == 'avión':
+                return "El avión despegó con destino a París al amanecer."
+            else:
+                return "Un camión de carga pasó frente a la tienda haciendo mucho ruido."
+            
+        case 8:
+            if palabra_escogida == 'sol':
+                return "El gato dormía plácidamente bajo el sol del mediodía."
+            else:
+                return "Cada actor interpretó su rol con gran emoción en la obre de teatro."
+
+""" print(seleccionar_oracion())
+input()
+os.system('cls')
+"""
 
 # Función para manejar el juego
 async def handle_adivina_palabra():
+    # Guardamos la oración seleccionada
+    oracion = seleccionar_oracion()
+    pregunta = f"¿Qué palabra escuchaste?...¿{palabras_escogidas[0]}...o {palabras_escogidas[1]}?"
+
+    texto_a_decir = f"{oracion} {pregunta}"
+
     return JSONResponse(content={
         "version": "1.0",
         "response": {
             "outputSpeech": {
                 "type": "PlainText",
-                "text": "Escucha con atención: gato...pato. ¿Cuál palabra escuchaste?"
+                "text": texto_a_decir
             },
             "shouldEndSession": False
         }
