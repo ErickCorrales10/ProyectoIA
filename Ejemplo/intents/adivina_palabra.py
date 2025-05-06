@@ -1,7 +1,5 @@
 from fastapi.responses import JSONResponse
 import random
-import os
-
 
 # Lista de pares de palabras a escuchar
 pares_palabras = [
@@ -15,15 +13,8 @@ pares_palabras = [
     (8, 'sol', 'rol')
 ]
 
-# Seleccionamos el par de palabras a escuchar
-palabras = random.choice(pares_palabras)
-indice, palabra_1, palabra_2 = palabras
-palabras_escogidas = (palabra_1, palabra_2)
-palabra_escogida = random.choice(palabras_escogidas)
-print(palabras_escogidas)
-
 # Seleccionar la oración dependiendo de las palabras
-def seleccionar_oracion():
+def seleccionar_oracion(indice, palabra_escogida):
     match indice:
         case 1:
             return "El gato saltó por la ventana para tomar el sol." if palabra_escogida == 'gato' else "En el lago el pato paseaba por el agua."
@@ -67,21 +58,27 @@ def seleccionar_oracion():
             else:
                 return "Cada actor interpretó su rol con gran emoción en la obre de teatro."
 
-""" print(seleccionar_oracion())
-input()
-os.system('cls')
-"""
-
 # Función para manejar el juego
 async def handle_adivina_palabra():
+    # Seleccionamos el par de palabras a escuchar
+    palabras = random.choice(pares_palabras)
+    indice, palabra_1, palabra_2 = palabras
+    palabras_escogidas = (palabra_1, palabra_2)
+    palabra_escogida = random.choice(palabras_escogidas)
+    print(palabras_escogidas)
+    print(palabra_escogida)
+
     # Guardamos la oración seleccionada
-    oracion = seleccionar_oracion()
+    oracion = seleccionar_oracion(indice, palabra_escogida)
     pregunta = f"¿Qué palabra escuchaste?...¿{palabras_escogidas[0]}...o {palabras_escogidas[1]}?"
 
     texto_a_decir = f"{oracion} {pregunta}"
 
     return JSONResponse(content={
         "version": "1.0",
+        "sessionAttributes": {
+            "palabra_correcta": palabra_escogida
+        },
         "response": {
             "outputSpeech": {
                 "type": "PlainText",
@@ -103,3 +100,21 @@ async def adivina_palabras_instrucciones():
                     "shouldEndSession": False
                 }
             })
+
+# Función para verificar si la palabra dicha es la correcta
+async def verificar_palabra(valor_usuario: str, palabra_correcta: str):
+    if valor_usuario == palabra_correcta:
+        mensaje = f"Correcto!!! Has escuchado bien!!!."
+    else:
+        mensaje = f"No es correcto. Intenta de nuevo."
+
+    return JSONResponse(content={
+        "version": "1.0",
+        "response": {
+            "outputSpeech": {
+                "type": "PlainText",
+                "text": mensaje
+            },
+            "shouldEndSession": False
+        }
+    })
