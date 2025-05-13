@@ -12,6 +12,7 @@ load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 print(f'API Key cargada: {api_key}')
 openai.api_key = os.getenv("OPENAI_API_KEY")
+print('Hola Erick')
 
 app = FastAPI()
 @app.post("/")
