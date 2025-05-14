@@ -5,7 +5,7 @@ import os
 async def handle_pregunta_chatgpt(pregunta: str):
     try:
         respuesta = openai.chat.completions.create(
-            model = "gpt-4.1-mini",
+            model = "gpt-3.5-turbo",
             messages = [
                 {"role": "system", "content": "Eres un asistente amable."},
                 {"role": "user", "content": pregunta}
@@ -34,7 +34,7 @@ async def handle_pregunta_chatgpt(pregunta: str):
             "response": {
                 "outputSpeech": {
                     "type": "PlainText",
-                    "text": "Hubo un problema al procesar tu respuesa. Intenta de nuevo más tarde."                
+                    "text": "Hubo un problema al procesar tu respuesa con ChatGpt. Intenta de nuevo más tarde."                
                 },
                 "shouldEndSession": False
             }
