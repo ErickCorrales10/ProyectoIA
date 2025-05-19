@@ -5,14 +5,17 @@ import os
 import requests
 import html
 from huggingface_hub import InferenceClient
+import asyncio
+import time
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 print(f"Token cargado: {HF_TOKEN}")
 
 cliente = InferenceClient(
-    # model="HuggingFaceH4/zephyr-7b-beta",
-    model="meta-llama/Llama-3.1-8B-Instruct",
+    model="HuggingFaceH4/zephyr-7b-beta",
+    # model="meta-llama/Llama-3.1-8B-Instruct",
+    # model="deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
     token=HF_TOKEN
 )
 
@@ -20,6 +23,7 @@ app = FastAPI()
 
 def preguntar_huggingface(pregunta: str) -> str:
     try:
+        inicio = time.time()
         completion = cliente.chat.completions.create(
             messages=[
                 {
@@ -27,16 +31,22 @@ def preguntar_huggingface(pregunta: str) -> str:
                     "content": pregunta
                 }
             ],
-            max_tokens=1024,
+            max_tokens=512,
             temperature=0.7,
             top_p=0.95
         )
+        fin = time.time()
+        print(f'Tiempo de respuesta: {fin - inicio}.2f segundos')
+        
         respuesta = completion.choices[0].message.content
         return respuesta.strip()
     
     except Exception as e:
         print("Error al consultar Hugging Face:", e)
         return "Lo siento, no puedo generar una respuesta en este momento."
+    
+async def preguntar_huggingface_asyn(pregunta: str) -> str:
+    return await asyncio.to_thread(preguntar_huggingface, pregunta)
     
 @app.post("/")
 async def handle_alexa(request: Request):
@@ -94,7 +104,7 @@ async def handle_alexa(request: Request):
         
 async def handle_pregunta_chatgpt(pregunta: str):
     print("Generando respuesta desde Hugging Face para la pregunta:", pregunta)
-    respuesta = preguntar_huggingface(pregunta)
+    respuesta = await preguntar_huggingface_asyn(pregunta)
     print("Respuesta generada:", respuesta)
     
     return JSONResponse(content={
