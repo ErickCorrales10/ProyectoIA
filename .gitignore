@@ -1,0 +1,30 @@
+# Ignorar entorno virtual
+venv_fastapi/
+venv/
+
+# Ignorar archivos de configuración locales
+.env
+*.env
+
+# Archivos de Python compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de logs
+*.log
+
+# Configuración de editores/IDE
+.vscode/
+.idea/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos .swp
+*.swp
+
+# Archivos .pyc y __pycache__
+*.pyc
+__pycache__
