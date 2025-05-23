@@ -7,6 +7,7 @@ import html
 from huggingface_hub import InferenceClient
 import asyncio
 import time
+import escucha_palabra
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -62,7 +63,8 @@ async def handle_alexa(request: Request):
                 "outputSpeech": {
                     "type": "PlainText",
                     "text": "Hola! Bienvenido a Hablemos Juntos. "
-                            "¿Sobre qué te gustaría hablar hoy?"
+                            "Puedes preguntarme lo que quieras o jugar alguno de los juegos que tengo para ti. "
+                            "¿Qué deseas hacer?"
                 },
                 "shouldEndSession": False
             }
@@ -72,10 +74,10 @@ async def handle_alexa(request: Request):
         intent = respuesta_alexa["request"]["intent"]
         nombre_intent = intent["name"]
         
-        if nombre_intent == "PreguntaChatgptIntent":
+        if nombre_intent == "PreguntaChatIntent":
             try:
                 pregunta_usuario = intent["slots"]["pregunta"]["value"]
-                return await handle_pregunta_chatgpt(pregunta_usuario)
+                return await handle_pregunta_chat(pregunta_usuario)
             
             except KeyError:
                 return JSONResponse(content={
@@ -90,6 +92,58 @@ async def handle_alexa(request: Request):
                     }
                 })
                 
+        elif nombre_intent == "EscuchaPalabraIntent":
+            try:
+                return await escucha_palabra.handle_escucha_palabra()
+            except Exception as e:
+                print(f'Error al  manejar el juego: {e}')
+                return JSONResponse(content={
+                    "version": "1.0",
+                    "response": {
+                        "outputSpeech": {
+                            "type": "PlainText",
+                            "text": "Lo siento, no puedo iniciar el juego en este momento."
+                        },
+                        "shouldEndSession": False
+                    }
+                })
+                
+        elif nombre_intent == "InstruccionesEscuchaPalabraIntent":
+            try:
+                return await escucha_palabra.escucha_palabras_instrucciones()
+            except Exception as e:
+                print(f'Error al manejar las instrucciones: {e}')
+                return JSONResponse(content={
+                    "version": "1.0",
+                    "response": {
+                        "outputSpeech": {
+                            "type": "PlainText",
+                            "text": "Lo siento, no puedo proporcionar las instrucciones en este momento."
+                        },
+                        "shouldEndSession": False
+                    }
+                })
+                
+        elif nombre_intent == "ResponderPalabraIntent":
+            try:
+                valor_usuario = intent["slots"]["palabra"]["value"].lower()
+                palabra_correcta = respuesta_alexa["session"]["attributes"]["palabra_correcta"]
+                return await escucha_palabra.verificar_palabra(valor_usuario, palabra_correcta)
+            except Exception as e:
+                print(f'Error al verificar la palabra: {e}')
+                return JSONResponse(content={
+                    "version": "1.0",
+                    "response": {
+                        "outputSpeech": {
+                            "type": "PlainText",
+                            "text": "No entendí la respuesta. "
+                                    "¿Puedes repetirla por favor?"
+                        },
+                        "shouldEndSession": False
+                    }
+                })
+            
+                
     else:
         return JSONResponse(content={
             "version": "1.0",
@@ -101,8 +155,8 @@ async def handle_alexa(request: Request):
                 "shouldEndSession": False
             }
         })
-        
-async def handle_pregunta_chatgpt(pregunta: str):
+
+async def handle_pregunta_chat(pregunta: str):
     print("Generando respuesta desde Hugging Face para la pregunta:", pregunta)
     respuesta = await preguntar_huggingface_asyn(pregunta)
     print("Respuesta generada:", respuesta)

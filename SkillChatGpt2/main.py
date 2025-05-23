@@ -85,7 +85,7 @@ async def handle_pregunta_chatgpt(pregunta: str):
         print('generando texto')
         prompt = f'Pregunta: {pregunta}\nRespuesta:'
         
-        generar_texto = generator(prompt, max_length=80, num_return_sequences=1, truncation=True)[0]['generated_text']
+        generar_texto = generator(prompt, max_length=800, num_return_sequences=1, truncation=True)[0]['generated_text']
         print(f"La primera generación de texto es: {generar_texto}")
         respuesta_gpt = generar_texto.split("Respuesta:")[-1].split('\n')[0].strip()
         respuesta_gpt = html.escape(respuesta_gpt.replace('\n', " ").strip())
