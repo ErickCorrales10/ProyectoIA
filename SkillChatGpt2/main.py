@@ -12,7 +12,7 @@ load_dotenv()
 print('Erick')
 
 app = FastAPI()
-generator = pipeline('text-generation', model='gpt2-medium') # Cargar el modelo GPT-2 Small
+generator = pipeline('text-generation', model='gpt2') # Cargar el modelo GPT-2 Small
 
 @app.post("/")
 async def handle_alexa(request: Request):
@@ -90,7 +90,7 @@ async def handle_pregunta_chatgpt(pregunta: str):
         respuesta_gpt = generar_texto.split("Respuesta:")[-1].split('\n')[0].strip()
         respuesta_gpt = html.escape(respuesta_gpt.replace('\n', " ").strip())
         
-        print("\n\n\t\tLo que genera gpt-medium es:", respuesta_gpt, "\n\n")
+        print("\n\n\t\tLo que genera gpt-2 es:", respuesta_gpt, "\n\n")
         print(type(respuesta_gpt))
         
         respuesta_estatica = {
@@ -106,7 +106,7 @@ async def handle_pregunta_chatgpt(pregunta: str):
             "response": {
                 "outputSpeech": {
                     "type": "PlainText",
-                    "text": respuesta
+                    "text": respuesta_gpt
                 },
                 "shouldEndSession": False
             }

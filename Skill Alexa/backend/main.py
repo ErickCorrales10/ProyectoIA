@@ -30,7 +30,7 @@ async def handle_alexa(request: Request):
                 "outputSpeech": {
                     "type": "PlainText",
                     "text": "¡Hola! Bienvenido a Hablemos Juntos, donde te ayudaré a expresarte mejor. "
-                            "Dime ¿Cuál es tu nombre?"
+                            "Dime ¿Cuál es tu pregunta?"
                 },
                 "shouldEndSession": False
             }
