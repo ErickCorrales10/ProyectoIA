@@ -1,9 +1,9 @@
-from databases import Database
 from sqlalchemy import create_engine, MetaData
+from databases import Database
+
 
 DATABASE_URL = 'sqlite:///./hablemos_juntos.db'
 
-database = Database(DATABASE_URL)
 metadata = MetaData()
+database = Database(DATABASE_URL)
 engine = create_engine(DATABASE_URL)
-metadata.create_all(engine)

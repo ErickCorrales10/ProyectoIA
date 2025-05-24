@@ -9,7 +9,7 @@ import asyncio
 import time
 import escucha_palabra
 import sonidos_iniciales
-from base_datos import database, engine
+from base_datos import database, metadata, engine
 from modelos import chat_preguntas
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
