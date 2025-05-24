@@ -95,7 +95,7 @@ async def escucha_palabras_instrucciones():
                 "response": {
                     "outputSpeech": {
                         "type": "PlainText",
-                        "text": "Debes escuchar una oración y decir cuál de dos palabras escuchaste. ¿Listo para empezar?"
+                        "text": "Debes escuchar una oración y decir cuál de dos palabras escuchaste."
                     },
                     "shouldEndSession": False
                 }

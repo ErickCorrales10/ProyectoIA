@@ -8,6 +8,12 @@ from huggingface_hub import InferenceClient
 import asyncio
 import time
 import escucha_palabra
+import sonidos_iniciales
+from base_datos import database, engine
+from modelos import chat_preguntas
+from datetime import datetime, timezone
+from contextlib import asynccontextmanager
+from sqlalchemy import insert
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -20,7 +26,22 @@ cliente = InferenceClient(
     token=HF_TOKEN
 )
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Conectando a la base de datos....")
+    await database.connect()
+    print('Conectado a la base de datos')
+
+    yield
+    print("Desconectado de la base de datos...")
+    await database.disconnect()
+    
+    
+app = FastAPI(
+    title="Skill Afasia/Disfasia",
+    lifespan=lifespan
+)
 
 def preguntar_huggingface(pregunta: str) -> str:
     try:
@@ -142,6 +163,41 @@ async def handle_alexa(request: Request):
                         "shouldEndSession": False
                     }
                 })
+                
+        elif nombre_intent == "SonidosInicialesIntent":
+            try:
+                return await sonidos_iniciales.handle_sonidos_iniciales()
+            except Exception as e:
+                print(f'Error al manejar los sonidos iniciales: {e}')
+                return JSONResponse(content={
+                    "version": "1.0",
+                    "response": {
+                        "outputSpeech": {
+                            "type": "PlainText",
+                            "text": "Lo siento, no puedo iniciar el juego de sonidos iniciales en este momento."
+                        },
+                        "shouldEndSession": False
+                    }
+                })
+                
+        elif nombre_intent == "ResponderSonidosInicialesIntent":
+            try:
+                valor_usuario = intent["slots"]["palabra_escuchada"]["value"].lower()
+                palabra_correcta = respuesta_alexa["session"]["attributes"]["palabra_correcta"]
+                return await sonidos_iniciales.verificar_palabra(valor_usuario, palabra_correcta)
+            except Exception as e:
+                print(f'Error al verificar la palabra: {e}')
+                return JSONResponse(content={
+                    "version": "1.0",
+                    "response": {
+                        "outputSpeech": {
+                            "type": "PlainText",
+                            "text": "No entendí la respuesta. "
+                                    "¿Puedes repetirla por favor?"
+                        },
+                        "shouldEndSession": False
+                    }
+                })
             
                 
     else:
@@ -160,6 +216,18 @@ async def handle_pregunta_chat(pregunta: str):
     print("Generando respuesta desde Hugging Face para la pregunta:", pregunta)
     respuesta = await preguntar_huggingface_asyn(pregunta)
     print("Respuesta generada:", respuesta)
+    
+    try:
+        query = insert(chat_preguntas).values(
+            pregunta=pregunta,
+            respuesta=respuesta,
+            fecha_creacion=datetime.now(timezone.utc)
+        )
+        await database.execute(query)
+        print("Pregunta y respuesta insertadas en la base de datos.")
+    except Exception as e:
+        print("Error al insertar en la base de datos:", e)
+    
     
     return JSONResponse(content={
         "version": "1.0",
